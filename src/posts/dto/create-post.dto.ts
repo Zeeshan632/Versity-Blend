@@ -19,10 +19,6 @@ export class CreatePostDto {
   @IsString({ each: true })
   images: string[];
 
-  @IsInt()
-  @IsOptional()
-  groupId: number;
-
   @IsBoolean()
   @IsOptional()
   global: boolean;

@@ -15,12 +15,6 @@ export class Group{
   @Column()
   about: string
   
-  @CreateDateColumn({type: 'timestamp with time zone'})
-  createdAt: Date
-
-  @UpdateDateColumn({type: 'timestamp with time zone'})
-  updatedAt: Date
-  
   @ManyToOne(() => User, user => user.adminOfGroups)
   admin: User
 
@@ -30,7 +24,11 @@ export class Group{
 
   @ManyToOne(() => University, university => university.groups)
   university: University
+    
+  @CreateDateColumn({type: 'timestamp with time zone'})
+  createdAt: Date
 
-  @OneToMany(() => Post, post => post.group)
-  posts: Post[]
+  @UpdateDateColumn({type: 'timestamp with time zone'})
+  updatedAt: Date
+
 }

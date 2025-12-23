@@ -10,12 +10,18 @@ import { UniversitiesModule } from './universities/universities.module';
 import { GroupsModule } from './groups/groups.module';
 import { PostsModule } from './posts/posts.module';
 import { LikesModule } from './likes/likes.module';
+import { CommentsModule } from './comments/comments.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ChatGateway } from './chat/chat.gateway';
+import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],
     }),
+    EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -41,6 +47,9 @@ import { LikesModule } from './likes/likes.module';
     GroupsModule,
     PostsModule,
     LikesModule,
+    CommentsModule,
+    NotificationsModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

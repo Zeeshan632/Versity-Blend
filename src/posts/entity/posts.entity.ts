@@ -1,3 +1,4 @@
+import { Comment } from "src/comments/entity/comment.entity";
 import { Group } from "src/groups/entity/group.entity";
 import { Like } from "src/likes/entity/like.entity";
 import { University } from "src/universities/universities.entity";
@@ -24,14 +25,14 @@ export class Post {
   @ManyToOne(() => User, user => user.posts)
   author: User
 
-  @ManyToOne(() => Group, group => group.posts, {nullable: true})
-  group: Group
-
   @ManyToOne(() => University, university => university.posts)
   university: University
 
   @OneToMany(() => Like, like => like.post)
   likes: Like[]
+
+  @OneToMany(() => Comment, comment => comment.post)
+  comments: Comment[]
 
   @CreateDateColumn({type: 'timestamp with time zone'})
   createdAt: Date

@@ -1,10 +1,11 @@
 import { Exclude } from "class-transformer";
+import { Comment } from "src/comments/entity/comment.entity";
 import { Group } from "src/groups/entity/group.entity";
 import { Like } from "src/likes/entity/like.entity";
 import { Post } from "src/posts/entity/posts.entity";
 import { University } from "src/universities/universities.entity";
+import { Notification } from "src/notifications/entity/notification.entity";
 import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-
 export enum UserRole {
   USER = 'user',
   ADMIN = 'admin'
@@ -79,4 +80,13 @@ export class User {
 
   @OneToMany(() => Like, like => like.user)
   likes: Like[]
+
+  @OneToMany(() => Comment, comment => comment.authorId)
+  comments: Comment[]
+
+  @OneToMany(() => Notification, notification => notification.user)
+  notifications: Notification[]
+
+  @OneToMany(() => Notification, notification => notification.actor)
+  notificationsSent: Notification[]
 }
