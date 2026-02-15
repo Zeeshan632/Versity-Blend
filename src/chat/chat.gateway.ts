@@ -8,6 +8,9 @@ import {
 import e from 'express';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
+import { JoinRoomPayloadDto } from './dto/join-room-payload.dto';
+import { GroupMessageDto } from './dto/group-message.dto';
+import { TypingDto } from './dto/typing.dto';
 
 @WebSocketGateway({
   cors: {
@@ -32,30 +35,18 @@ export class ChatGateway
   }
 
   @SubscribeMessage('joinRoom')
-  async handleMessage(client: Socket, payload: any) {
-    // return async this.chatService.handleJoin(client, payload)
-    console.log(`${payload} is joining the room`)
-
-    await client.join('group')
-    
-    //broadcast
-    client.to('group').emit('roomNotice', payload)
-    console.log('Received: ', payload)
+  async handleMessage(client: Socket, payload: JoinRoomPayloadDto) {
+    return await this.chatService.handleJoin(client, payload);
   }
 
-  @SubscribeMessage('chatMessage')
-  handleChatMessage(client: Socket, payload: any){
-    client.to('group').emit('chatMessage', payload)
+  @SubscribeMessage('groupMessage')
+  async handleChatMessage(client: Socket, payload: GroupMessageDto){
+    return await this.chatService.handleGroupMessage(client, payload)
   }
 
   @SubscribeMessage('startTyping')
-  handleStartTyping(client: Socket, payload: any){
-    client.to('group').emit('startTyping', payload)
-  }wwww
-
-  @SubscribeMessage('stopTyping')
-  handleStopTyping(client: Socket, payload: any){
-    client.to('group').emit('stopTyping', payload)
+  async handleTyping(client: Socket, payload: TypingDto){
+    return await this.chatService.handleTyping(client, payload)
   }
 
 }
