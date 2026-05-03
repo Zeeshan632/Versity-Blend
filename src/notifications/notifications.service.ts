@@ -11,10 +11,13 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { NotificationIdsDto } from './dto/mark-read.dto';
 import { Post } from 'src/posts/entity/posts.entity';
 import { User } from 'src/user/entity/user.entity';
+import { ConnectedClientsService } from 'src/realtime/connected-clients.service';
 
 @Injectable()
 export class NotificationsService {
   constructor(
+    private readonly clients: ConnectedClientsService,
+
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
 
@@ -35,6 +38,11 @@ export class NotificationsService {
       meta: createNotificationDto.meta,
     });
     await this.notificationRepository.save(newNotification);
+    this.clients.send(
+      createNotificationDto.userId,
+      'notification',
+      newNotification,
+    );
 
     return { success: true, messaeg: 'notification created successfully!' };
   }

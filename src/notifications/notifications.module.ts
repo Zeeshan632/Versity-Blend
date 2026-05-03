@@ -8,9 +8,10 @@ import { Post } from 'src/posts/entity/posts.entity';
 import { User } from 'src/user/entity/user.entity';
 import { LikeHandler } from './handlers/like.handler';
 import { Comment } from 'src/comments/entity/comment.entity';
+import { RealtimeModule } from 'src/realtime/realtime.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Notification,  Post, User, Comment])],
+  imports: [TypeOrmModule.forFeature([Notification,  Post, User, Comment]), RealtimeModule],
   controllers: [NotificationsController],
   providers: [NotificationsService, LikeHandler]
 })

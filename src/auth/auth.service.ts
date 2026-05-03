@@ -91,6 +91,15 @@ export class AuthService {
     return { ...userToBeReturned, ...tokens };
   }
 
+  verifyJwt(token: string){
+    try {
+      return this.jwtService.verify(token)
+    } catch (error) {
+      console.log("Error verifying JWT:", error);
+      return null;
+    }
+  }
+
   private generateTokens(user: User) {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = this.generateRefreshToken(user);
