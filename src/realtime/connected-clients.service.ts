@@ -7,12 +7,12 @@ export class ConnectedClientsService {
 
     addClient(userId: number, socket: WebSocket) {
         this.clients.set(userId, socket);
-        console.log(`Clients Connected: ${this.clients.size}, socket: ${this.clients.get(userId)}`);
+        // console.log(`Clients Connected: ${this.clients.size}`);
     }
 
     removeClient(userId: number) {
         this.clients.delete(userId);
-        console.log(`Clients Disconnected: ${this.clients.size}, socket: ${this.clients.get(userId)}`);
+        // console.log(`Clients connected: ${this.clients.size}`);
     }
 
     send(userId: number, event: string, data: object){

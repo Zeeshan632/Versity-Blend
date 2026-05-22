@@ -19,49 +19,65 @@ import { ConnectedClientsService } from 'src/realtime/connected-clients.service'
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly chatService: ChatService, private clients: ConnectedClientsService, private readonly authService: AuthService) {}
-  
-  private getUserIdFromRequest(req: any){
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly clients: ConnectedClientsService,
+    private readonly authService: AuthService,
+  ) {}
+
+  private getUserIdFromRequest(req: any) {
     const token = req.headers['authorization'];
-    if(!token)return null;
-    const payload = this.authService.verifyJwt(token)
+    if (!token) return null;
+    const payload = this.authService.verifyJwt(token);
     return payload ? payload.sub : null;
   }
-  
+
   afterInit(server: Server) {
     console.log('🚀 WebSocket Gateway initialized');
+
+    const pingInterval = setInterval(() => {
+      server.clients.forEach((client: any) => {
+        if (client?.isAlive === false) {
+          this.clients.removeClient(client.userId);
+          return client.terminate();
+        }
+
+        client.isAlive = false;
+        client.ping();
+      });
+    }, 30000); // fires every 30 seconds
+
+    server.on('close', () => clearInterval(pingInterval));
   }
 
   handleConnection(client: WebSocket, req: any) {
-    const userId = this.getUserIdFromRequest(req)
-    if(userId){
-      this.clients.addClient(userId, client)
+    (client as any).isAlive = true;
+    client.on('pong', () => {
+      (client as any).isAlive = true;
+    });
+    const userId = this.getUserIdFromRequest(req);
+    if (userId) {
+      (client as any).userId = userId;
+      this.clients.addClient(userId, client);
     }
 
     client.on('error', (err) => {
       console.error('WebSocket error:', err);
-    })
+    });
   }
 
   handleDisconnect(client: WebSocket) {
     const userId = (client as any).userId;
     this.clients.removeClient(userId);
-    console.log(`Client disconnected: ${userId}`);
   }
 
-  @SubscribeMessage('joinRoom')
-  async handleMessage(client: WebSocket, payload: JoinRoomPayloadDto) {
-    // return await this.chatService.handleJoin(client, payload);
-  }
-
-  @SubscribeMessage('groupMessage')
-  async handleChatMessage(client: WebSocket, payload: GroupMessageDto){
-    // return await this.chatService.handleGroupMessage(client, payload)
+  @SubscribeMessage('uniGroupMessage')
+  async handleMessageToUniGroup(client: WebSocket, payload: any) {
+    return await this.chatService.sendMessageToUniGroup(client, payload);
   }
 
   @SubscribeMessage('startTyping')
-  async handleTyping(client: WebSocket, payload: TypingDto){
+  async handleTyping(client: WebSocket, payload: TypingDto) {
     // return await this.chatService.handleTyping(client, payload)
   }
-
 }

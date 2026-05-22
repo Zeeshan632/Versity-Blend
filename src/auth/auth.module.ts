@@ -9,10 +9,12 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { University } from 'src/universities/universities.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Conversation } from 'src/chat/entities/conversation.entity';
+import { ConversationParticipant } from 'src/chat/entities/conversation-participant.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, University]),
+    TypeOrmModule.forFeature([User, University, Conversation, ConversationParticipant]),
     PassportModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({

@@ -1,7 +1,8 @@
+import { Conversation } from 'src/chat/entities/conversation.entity';
 import { Group } from 'src/groups/entity/group.entity';
 import { Post } from 'src/posts/entity/posts.entity';
 import { User } from 'src/user/entity/user.entity';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 
 @Entity('universities')
 export class University {
@@ -28,7 +29,10 @@ export class University {
 
   @OneToMany(() => Post, post => post.university)
   posts: Post[]
-  
+
+  @OneToOne(() => Conversation, conversation => conversation.university)
+  conversation: Conversation;
+
   @CreateDateColumn({type: 'timestamp with time zone'})
   createdAt: Date
 

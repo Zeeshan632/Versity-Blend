@@ -7,28 +7,28 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entity/user.entity';
-import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { University } from 'src/universities/universities.entity';
+import { Conversation, ConversationType } from 'src/chat/entities/conversation.entity';
+import { ConversationParticipant } from 'src/chat/entities/conversation-participant.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(University)
-    private readonly universityRepository: Repository<University>,
-    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepository.findOne({
+ async createUser(createUserDto: CreateUserDto) {
+  return await this.userRepository.manager.transaction(async (manager) => {
+    
+    const existingUser = await manager.findOne(User, {
       where: { email: createUserDto.email },
     });
 
@@ -38,30 +38,49 @@ export class AuthService {
 
     const universityDomain = this.findUniversityDomain(createUserDto.email);
 
-    const university = await this.universityRepository.findOne({
+    const university = await manager.findOne(University, {
       where: { domain: universityDomain },
     });
 
     if (!university) {
       throw new NotFoundException(
-        "Your university could not be identified from your email, please make sure you are using your university email correct. If it still doesn't work, please talk with our help desk to register your university in our database!",
+        "Your university could not be identified from your email...",
       );
+    }
+
+    let conversation = await manager.findOne(Conversation, {
+      where: { university: { id: university.id } },
+    });
+
+    if (!conversation) {
+      conversation = manager.create(Conversation, {
+        type: ConversationType.UNIVERSITY,
+        university,
+      });
+      conversation = await manager.save(conversation);
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const newUser = this.userRepository.create({
+    const newUser = manager.create(User, {
       ...createUserDto,
       password: hashedPassword,
-      university: university,
+      university,
     });
 
-    const createdUser = await this.userRepository.save(newUser);
+    const savedUser = await manager.save(newUser);
 
-    const { password, ...results } = createdUser;
+    const participant = manager.create(ConversationParticipant, {
+      conversation,
+      user: savedUser,
+    });
 
-    return results;
-  }
+    await manager.save(participant);
+
+    const { password, ...result } = savedUser;
+    return result;
+  });
+}
 
   private findUniversityDomain(email: string) {
     return email.split('@')[1];
