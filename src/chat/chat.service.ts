@@ -7,6 +7,9 @@ import { GroupMessageDto } from './dto/group-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { User } from 'src/user/entity/user.entity';
 import { ConnectedClientsService } from 'src/realtime/connected-clients.service';
+import { Message } from './entities/message.entity';
+import { Conversation } from './entities/conversation.entity';
+import { ConversationParticipant } from './entities/conversation-participant.entity';
 
 @Injectable()
 export class ChatService {
@@ -14,20 +17,44 @@ export class ChatService {
     @InjectRepository(Group)
     private readonly groupRepo: Repository<Group>,
 
+    @InjectRepository(ConversationParticipant)
+    private readonly conversationParticipantRepo: Repository<ConversationParticipant>,
+
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
 
-    private readonly clients: ConnectedClientsService
-  ){}
+    @InjectRepository(Message)
+    private readonly messageRepo: Repository<Message>,
 
+    private readonly clients: ConnectedClientsService,
+  ) {}
 
-  async sendMessageToUniGroup(client: any, payload: any){
-    const allStudentsOfAUni = await this.userRepo.find({where: {university: {id: payload.universityId}}})
+  async sendMessageToUniGroup(client: any, payload: any) {
+    const conversationParticipants =
+      await this.conversationParticipantRepo.find({
+        where: { conversation: { id: payload.conversationId } },
+        relations: { user: true },
+      });
+    console.log("----------->>>.   ", conversationParticipants)
+    if (conversationParticipants.length > 0) {
+      try {
+        const newMessage = this.messageRepo.create({
+          content: payload.message,
+          conversation: { id: payload.conversationId },
+          sender: { id: payload.senderId },
+        });
+        const messageCreated = await this.messageRepo.save(newMessage);
 
-    console.log(client.userId)
-
-    allStudentsOfAUni.forEach(student => {
-      this.clients.send(student.id, 'uniGroupMessage', {senderId: client.userId, message: payload.message})
-    })
+        conversationParticipants.forEach((student) => {
+          if (this.clients.open(student.user.id)) {
+            this.clients.send(student.user.id, 'uniGroupMessage', {
+              message: messageCreated,
+            });
+          }
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
   }
 }

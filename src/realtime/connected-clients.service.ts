@@ -30,4 +30,9 @@ export class ConnectedClientsService {
             }
         })
     }
+
+    open(userId: number){
+        const socket = this.clients.get(userId)
+        return socket.OPEN
+    }
 }

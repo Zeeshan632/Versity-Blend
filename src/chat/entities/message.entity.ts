@@ -27,7 +27,7 @@ export class Message {
     @ManyToOne(() => Message, {nullable: true})
     replyTo: Message;
 
-    @Column('boolean')
+    @Column('boolean', {default: false})
     isDeleted: boolean;
 
     @Column({type: 'enum', enum: deletedFor, default: null, nullable: true})
