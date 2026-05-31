@@ -18,7 +18,7 @@ export class Conversation {
     @Column({type: 'enum', enum: ConversationType})
     type: ConversationType;
 
-    @OneToOne(() => Group)
+    @OneToOne(() => Group, {lazy: true})
     @JoinColumn()
     group: Group;
 
