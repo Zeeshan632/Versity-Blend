@@ -5,13 +5,10 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
-import e from 'express';
 import { ChatService } from './chat.service';
-import { JoinRoomPayloadDto } from './dto/join-room-payload.dto';
-import { GroupMessageDto } from './dto/group-message.dto';
+import { MessageDto } from './dto/message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { Server, WebSocket } from 'ws';
-import { IncomingMessage } from 'http';
 import { AuthService } from 'src/auth/auth.service';
 import { ConnectedClientsService } from 'src/realtime/connected-clients.service';
 
@@ -72,8 +69,18 @@ export class ChatGateway
   }
 
   @SubscribeMessage('uniGroupMessage')
-  async handleMessageToUniGroup(client: WebSocket, payload: any) {
-    return await this.chatService.sendMessageToUniGroup(client, payload);
+  async handleMessageToUniGroup(client: WebSocket, payload: MessageDto) {
+    return await this.chatService.sendMessageToUniGroup(payload);
+  }
+
+  @SubscribeMessage('groupMessage')
+  async handleGroupMessage(client: WebSocket, payload: MessageDto){
+    return await this.chatService.sendMessageToGroup(payload)
+  }
+
+  @SubscribeMessage('directMessage')
+  async handleDirectMessage(client: WebSocket, payload: MessageDto){
+    return await this.chatService.handleDirectMessage(payload)
   }
 
   @SubscribeMessage('startTyping')

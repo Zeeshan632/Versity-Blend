@@ -17,7 +17,6 @@ export class ConnectedClientsService {
 
     send(userId: number, event: string, data: object){
         const socket = this.clients.get(userId);
-        console.log("This is triggering:   ", `userId: ${userId},  socket's ready state:  ${socket?.readyState},    socket: ${socket},     ${WebSocket.OPEN}`)
         if(socket && socket.readyState === WebSocket.OPEN){
             socket.send(JSON.stringify({ event, data }));
         }
@@ -31,8 +30,8 @@ export class ConnectedClientsService {
         })
     }
 
-    open(userId: number){
+    isReady(userId: number){
         const socket = this.clients.get(userId)
-        return socket.OPEN
+        return socket !== undefined && socket.readyState === WebSocket.OPEN
     }
 }
