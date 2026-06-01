@@ -1,14 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Group } from 'src/groups/entity/group.entity';
 import { Repository } from 'typeorm';
 import { MessageDto } from './dto/message.dto';
-import { User } from 'src/user/entity/user.entity';
 import { ConnectedClientsService } from 'src/realtime/connected-clients.service';
 import { Message } from './entities/message.entity';
 import { ConversationParticipant } from './entities/conversation-participant.entity';
-import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 import { Conversation, ConversationType } from './entities/conversation.entity';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -92,7 +90,7 @@ export class ChatService {
     let conversation: Conversation;
     if (!payload.conversationId) {
       if (!payload.receiverId) {
-        throw new BadRequestException(
+        throw new WsException(
           'Either conversationId or receiverId must be present!',
         );
       }
