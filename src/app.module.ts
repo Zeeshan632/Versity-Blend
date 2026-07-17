@@ -15,18 +15,24 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatModule } from './chat/chat.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ElectionModule } from './election/election.module';
+import { UploadModule } from './upload/upload.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig],
     }),
+    ScheduleModule.forRoot(),
+
     EventEmitterModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const db = configService.get('database')
+        const db = configService.get('database');
         return {
           type: db.type,
           host: db.host,
@@ -37,8 +43,8 @@ import { ChatModule } from './chat/chat.module';
           entities: [User],
           autoLoadEntities: true,
           synchronize: true, // set to false in production ⚠
-        }
-      }
+        };
+      },
     }),
     AuthModule,
     UserModule,
@@ -50,6 +56,8 @@ import { ChatModule } from './chat/chat.module';
     CommentsModule,
     NotificationsModule,
     ChatModule,
+    ElectionModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

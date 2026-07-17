@@ -7,6 +7,7 @@ import { Message } from './entities/message.entity';
 import { ConversationParticipant } from './entities/conversation-participant.entity';
 import { Conversation, ConversationType } from './entities/conversation.entity';
 import { WsException } from '@nestjs/websockets';
+import { UploadService } from 'src/upload/upload.service';
 
 @Injectable()
 export class ChatService {
@@ -21,6 +22,8 @@ export class ChatService {
     private readonly conversationRepo: Repository<Conversation>,
 
     private readonly clients: ConnectedClientsService,
+
+    private readonly uploadService: UploadService,
   ) {}
 
   async sendMessageToUniGroup(payload: MessageDto) {
@@ -34,6 +37,7 @@ export class ChatService {
         const newMessage = this.messageRepo.create({
           content: payload.message,
           conversationId: payload.conversationId,
+          imageUrl: payload.imageUrl ?? null,
           senderId: payload.senderId,
         });
         const messageCreated = await this.messageRepo.save(newMessage);
@@ -68,6 +72,7 @@ export class ChatService {
         const newMessage = this.messageRepo.create({
           content: payload.message,
           conversationId: payload.conversationId,
+          imageUrl: payload.imageUrl ?? null,
           senderId: payload.senderId,
         });
         const messageCreated = await this.messageRepo.save(newMessage);
@@ -130,6 +135,7 @@ export class ChatService {
 
     const newMessage = this.messageRepo.create({
       content: payload.message,
+      imageUrl: payload.imageUrl ?? null,
       conversationId: conversation.id,
       senderId: payload.senderId,
     });
@@ -142,5 +148,10 @@ export class ChatService {
         this.clients.send(participant.user.id, 'directMessage', messageCreated)
       }
     })
+  }
+
+  async uploadImage(image: Express.Multer.File){
+    const url = await this.uploadService.uploadImage(image, 'messages')
+    return url
   }
 }

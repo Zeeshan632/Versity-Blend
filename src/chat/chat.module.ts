@@ -9,9 +9,12 @@ import { User } from 'src/user/entity/user.entity';
 import { Conversation } from './entities/conversation.entity';
 import { ConversationParticipant } from './entities/conversation-participant.entity';
 import { Message } from './entities/message.entity';
+import { ChatController } from './chat.controller';
+import { UploadModule } from 'src/upload/upload.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Group, User, Conversation, ConversationParticipant, Message]), AuthModule, RealtimeModule],
-  providers: [ChatGateway, ChatService]
+  imports: [TypeOrmModule.forFeature([Group, User, Conversation, ConversationParticipant, Message]), AuthModule, RealtimeModule, UploadModule],
+  providers: [ChatGateway, ChatService],
+  controllers: [ChatController]
 })
 export class ChatModule {}

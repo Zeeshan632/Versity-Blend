@@ -15,6 +15,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { University } from 'src/universities/universities.entity';
 import { Conversation, ConversationType } from 'src/chat/entities/conversation.entity';
 import { ConversationParticipant } from 'src/chat/entities/conversation-participant.entity';
+import { ElectionService } from 'src/election/election.service';
 
 @Injectable()
 export class AuthService {
@@ -23,6 +24,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly electionService: ElectionService
   ) {}
 
  async createUser(createUserDto: CreateUserDto) {
@@ -76,6 +78,13 @@ export class AuthService {
     });
 
     await manager.save(participant);
+
+    const participantCount = await manager.count(ConversationParticipant, {
+      where: {conversation: {id: conversation.id}}
+    })
+    if(participantCount === 1){
+      await this.electionService.onFirstMemberJoined(conversation)
+    }
 
     const { password, ...result } = savedUser;
     return result;

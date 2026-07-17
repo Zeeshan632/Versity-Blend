@@ -8,12 +8,16 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreatePostDto } from './dto/create-post.dto';
 import { AuthenticatedRequest } from 'src/types/express';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from 'src/upload/file-validation.pipe';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('posts')
@@ -21,11 +25,13 @@ export class PostsController {
   constructor(private readonly postService: PostsService) {}
 
   @Post('create')
+  @UseInterceptors(FilesInterceptor('files', 5))
   createPost(
+    @UploadedFile(new FileValidationPipe()) files: Express.Multer.File[],
     @Body() createPostDto: CreatePostDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    return this.postService.createPost(createPostDto, +req.user.userId);
+    return this.postService.createPost(createPostDto, +req.user.userId, files);
   }
 
   @Patch('update/:postId')

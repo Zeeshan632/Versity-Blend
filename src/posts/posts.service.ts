@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { Post } from './entity/posts.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { User } from 'src/user/entity/user.entity';
+import { UploadService } from 'src/upload/upload.service';
 
 @Injectable()
 export class PostsService {
@@ -19,18 +20,24 @@ export class PostsService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly uploadService: UploadService
   ) {}
 
-  async createPost(createPostDto: CreatePostDto, userId: number) {
+  async createPost(createPostDto: CreatePostDto, userId: number, files: Express.Multer.File[]) {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: { university: true },
     });
 
+    const imageUrls = files.length > 0 ? await Promise.all(
+      files.map(eachFile => this.uploadService.uploadImage(eachFile, 'posts'))
+    ) : []
+
     const newPost = this.postRepository.create({
       text: createPostDto.text,
       global: createPostDto.global ?? false,
-      images: createPostDto.images ?? [],
+      images: imageUrls,
       author: { id: userId },
       university: !createPostDto.global ? { id: user.university.id } : null,
     });

@@ -14,11 +14,6 @@ export class CreatePostDto {
   @MaxLength(1000)
   text: string;
 
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  images: string[];
-
   @IsBoolean()
   @IsOptional()
   global: boolean;

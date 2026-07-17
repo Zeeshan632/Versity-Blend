@@ -2,7 +2,7 @@ declare namespace NodeJS {
   interface ProcessEnv {
     // Server
     PORT?: string;
- 
+
     // Auth / JWT
     ACCESS_TOKEN_SECRET: string;
     ACCESS_TOKEN_EXPIRATION: string;
@@ -16,5 +16,10 @@ declare namespace NodeJS {
     DB_USERNAME: string;
     DB_PASSWORD: string;
     DB_NAME: string;
+
+    // Cloudinary
+    CLOUDINARY_CLOUD_NAME: string;
+    CLOUDINARY_API_KEY: string;
+    CLOUDINARY_API_SECRET: string;
   }
 }

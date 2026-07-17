@@ -15,6 +15,10 @@ export class MessageDto {
   conversationId: number
 
   @IsString()
+  @IsOptional()
+  imageUrl: string
+
+  @IsString()
   @IsNotEmpty()
   message: string
 } 

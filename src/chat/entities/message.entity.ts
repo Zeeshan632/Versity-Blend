@@ -34,6 +34,9 @@ export class Message {
   @Column('text')
   content: string;
 
+  @Column({type: 'text', nullable: true})
+  imageUrl: string;
+
   @Column('boolean', { default: false })
   messageSeen: boolean;
 

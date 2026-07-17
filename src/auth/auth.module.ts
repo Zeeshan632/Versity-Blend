@@ -11,11 +11,15 @@ import { University } from 'src/universities/universities.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Conversation } from 'src/chat/entities/conversation.entity';
 import { ConversationParticipant } from 'src/chat/entities/conversation-participant.entity';
+import { ElectionService } from 'src/election/election.service';
+import { ElectionModule } from 'src/election/election.module';
+import { UploadService } from 'src/upload/upload.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, University, Conversation, ConversationParticipant]),
     PassportModule,
+    ElectionModule,
     JwtModule.registerAsync({
       useFactory: (config: ConfigService) => ({
         secret: config.get('ACCESS_TOKEN_SECRET'),
@@ -25,7 +29,7 @@ import { ConversationParticipant } from 'src/chat/entities/conversation-particip
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtStrategy],
+  providers: [AuthService, UserService, JwtStrategy, UploadService],
   exports: [AuthService],
 })
 export class AuthModule {}
