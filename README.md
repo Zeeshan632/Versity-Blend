@@ -24,7 +24,7 @@ For a deeper understanding of the project's architecture and design decisions, r
 | Document | Description |
 |----------|-------------|
 | **[Architecture](./ARCHITECTURE.md)** | Detailed explanation of the backend architecture, request lifecycle, module interactions, WebSocket communication, and notification flow. |
-| **System Design** *(Coming Soon)* | Scalability considerations, caching strategies, deployment architecture, and future improvements. |
+| **[System Design](./SYSTEM_DESIGN.md)** | Scalability considerations, caching strategies, deployment architecture, and future improvements. |
 | **API Reference** *(Coming Soon)* | Detailed API documentation and endpoint reference. |
 
 ## Features
